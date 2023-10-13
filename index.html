@@ -138,7 +138,7 @@
           <div class="card-body">
             <code class="fs-18" id="schemeResult" v-on:click="copySchemeText">
               <div># Color Scheme: {{ scheme_name }}</div>
-              <div># https://github.com/AnderTM/micro-editor-colorscheme</div>
+              <div># https://andertm.github.io/micro-editor-colorscheme/</div>
               <div v-for="cl in color_links" :key="cl.link_name">
                 <a style="color: inherit" class="text-decoration-none" v-bind:href="'#goto_' + cl.link_name"> {{ !cl.is_active ? '#' : '' }}color-link {{ cl.link_name }} "{{ cl.text_decoration ? cl.text_decoration + ' ' : '' }}{{ cl.font_color ? cl.font_color + ',' : '' }}{{ cl.bg_color ? cl.bg_color : '' }}"</a>
               </div>
