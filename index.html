@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Micro Editor ColorScheme</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+</head>
+
+<body>
+
+  <div id="vue_app" class="container-fluid bg-body-secondary fs-6 min-vh-100" data-bs-theme="dark">
+
+    <div class="row">
+      <!-- Left column -->
+      <div class="col mt-3">
+
+        <!-- Add new scheme -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Add new</h5>
+          </div>
+          <div class="card-body">
+
+            <div class="form-group row">
+              <div class="col-md-1">
+                <input type="checkbox" class="form-check-input form-control form-control-sm"
+                  v-model="new_color_link.is_active">
+              </div>
+              <div class="col-md-3">
+                <input type="text" class="form-control form-control-sm" v-model="new_color_link.link_name">
+              </div>
+              <div class="col-md-2">
+                <select name="text_decoration" class="form-control form-control-sm"
+                  v-model="new_color_link.text_decoration">
+                  <option value="">Empty</option>
+                  <option value="bold">Bold</option>
+                  <option value="italic">Italic</option>
+                  <option value="underline">Underline</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <input type="text" data-jscolor="{}" class="form-control form-control-sm"
+                  v-model="new_color_link.font_color">
+              </div>
+              <div class="col-md-2">
+                <input type="text" data-jscolor="{}" class="form-control form-control-sm bg"
+                  v-model="new_color_link.bg_color">
+              </div>
+              <div class="col-md-2">
+                <button class="form-control form-control-sm btn-primary" v-on:click="addNewScheme">Add</button>
+              </div>
+            </div>
+            <!-- End Adding form -->
+
+          </div>
+
+        </div>
+
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <label for="schemeName">ColorScheme Name</label>
+            <input type="text" class="form-control" id="schemeName" v-model="scheme_name">
+          </div>
+        </div>
+
+
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Options</h5>
+          </div>
+
+          <div class="card-body" id="formSchemeOptions">
+
+            <!-- Editing form -->
+            <div class="form-group row p-2" v-for="(cl, index) in color_links" :key="cl.link_name" :set="test_text = getTestText(index)" v-bind:style="{ 'color': cl.font_color, 'background-color':  cl.bg_color }">
+              <div class="mb-2" v-bind:id="'goto_' + cl.link_name">
+                <i v-if="cl.text_decoration === 'italic'">
+                  {{test_text}}
+                </i>
+                <b v-else-if="cl.text_decoration === 'bold'">
+                  {{test_text}}
+                </b>
+                <u v-else-if="cl.text_decoration === 'underline'">
+                  {{test_text}}
+                </u>
+                <span v-else>
+                  {{test_text}}
+                </span>
+              </div>
+              <div class="col-md">
+                <input type="checkbox" class="form-check-input form-control form-control-sm" v-model="cl.is_active">
+              </div>
+              <div class="col-md-3">
+                <input type="text" class="form-control form-control-sm" v-model="cl.link_name">
+              </div>
+              <div class="col-md-2">
+                <select name="text_decoration" class="form-control form-control-sm" v-model="cl.text_decoration">
+                  <option value="">Empty</option>
+                  <option value="bold">Bold</option>
+                  <option value="italic">Italic</option>
+                  <option value="underline">Underline</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <input type="text" data-jscolor="{}" class="form-control form-control-sm" v-model="cl.font_color">
+              </div>
+              <div class="col-md-3">
+                <input type="text" data-jscolor="{}" class="form-control form-control-sm bg" v-model="cl.bg_color">
+              </div>
+              <!-- <div class="col-md-1">
+                <button class="form-control form-control-sm bg-danger" v-on:click="deleteScheme(index)">X</button>
+              </div> -->
+            </div>
+            <!-- End Editing form -->
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <!-- Right column -->
+      <div class="col mt-3">
+
+        <!-- <compact-picker v-model="test_color" /> -->
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Code</h5>
+          </div>
+          <div class="card-body">
+            <code class="fs-18" id="schemeResult" v-on:click="copySchemeText">
+              <div># Color Scheme: {{ scheme_name }}</div>
+              <div># https://github.com/AnderTM/micro-editor-colorscheme</div>
+              <div v-for="cl in color_links" :key="cl.link_name">
+                <a style="color: inherit" class="text-decoration-none" v-bind:href="'#goto_' + cl.link_name"> {{ !cl.is_active ? '#' : '' }}color-link {{ cl.link_name }} "{{ cl.text_decoration ? cl.text_decoration + ' ' : '' }}{{ cl.font_color ? cl.font_color + ',' : '' }}{{ cl.bg_color ? cl.bg_color : '' }}"</a>
+              </div>
+            </code>
+          </div>
+          <div class="card-footer text-center">
+            <button class="btn btn-primary" v-on:click="copySchemeText">Copy</button>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Import scheme</h5>
+          </div>
+          <div class="card-body">
+            <div class="card-text">
+              <textarea id="importScheme" class="form-control" rows="7">color-link default "#000000,#FFFFFF"</textarea>
+            </div>
+          </div>
+          <div class="card-footer text-center">
+            
+            <div class="form-group row">
+              <div class="col-md-6">
+                <select name="scheme_files" class="form-control form-control-sm" v-model="scheme_file_selected" v-on:change="fetchScheme(scheme_file_selected)">
+                  <option v-for="sf in scheme_files" v-on:change="fetchScheme(sf)">{{sf}}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <button class="form-control form-control-sm btn btn-primary " v-on:click="parseAndImportScheme">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-cloud-download" viewBox="0 0 16 16">
+                    <path d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10h5a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/>
+                    <path d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"/>
+                  </svg>
+                  Import
+                </button>
+              </div>
+            </div>
+
+            
+          
+            
+            
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/vue.global.prod.v.3.3.4.js"></script>
+  <!-- <script src="/js/vue-color.min.js"></script> -->
+  <script src="/js/jscolor.2.5.1-min.js"></script>
+
+
+  <script>
+    jscolor.presets.default = {
+      required:false,
+      palette: ['#FFFFFF', '#000000',  
+                'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 
+                'brightblack', 'brightred', 'brightgreen', 'brightyellow', 'brightblue', 'brightmagenta', 'brightcyan', 'brightwhite'],
+    }
+  </script>
+  <script>
+    function parse_scheme(schemeStr) {
+      schemeArray = [];
+      schemeStr.trim().split("\n").forEach(el => {
+        el = el.trim();
+
+        // # color-link error-message.test "bold #000000,#FFFFFF"
+        let regexp = /(?<gIsActive>#\s*)?color-link\s*(?<gColorName>.*\s)\"(?<gTextDecor>bold|italic|underline\s*)?(?<gFontColor>.*,)?(?<gBgColor>.*)?\"/gi;
+
+        let matchAll = Array.from(el.toLowerCase().matchAll(regexp))
+        if (matchAll.length) {
+          let schemeMatch = matchAll[0]['groups']
+          scheme = {
+            'is_active': schemeMatch.gIsActive !== undefined && schemeMatch.gIsActive.search('#') >= 0 ? false : true, // #
+            'link_name': schemeMatch.gColorName !== undefined && schemeMatch.gColorName ? schemeMatch.gColorName.trim() : '',
+            'text_decoration': schemeMatch.gTextDecor !== undefined && schemeMatch.gTextDecor ? scheme.text_decoration = schemeMatch.gTextDecor.trim() : '', // bold, italic, or underline
+            'font_color': schemeMatch.gFontColor !== undefined && schemeMatch.gFontColor ? schemeMatch.gFontColor.replace(',', '').trim().toUpperCase() : '',
+            'bg_color': schemeMatch.gBgColor !== undefined && schemeMatch.gBgColor ? schemeMatch.gBgColor.replace(',', '').trim().toUpperCase() : '',
+          };
+
+          schemeArray.push(scheme);
+        }
+      });
+
+      return schemeArray;
+    } 
+  </script>
+
+
+  <script>
+    const { createApp, ref, reactive } = Vue
+    //const { Compact } = VueColor
+
+    const ColorLinks = [{
+      'is_active': true, // #
+      'link_name': 'default',
+      'text_decoration': '', // '', bold, italic, or underline
+      'font_color': '#FFFFFF',
+      'bg_color': '#000000',
+    }]
+
+
+    const ColorLinksAppSettings = {
+      /* components: {
+        'compact-picker': Compact
+      }, */
+      data() {
+        return {
+          scheme_name: ref('micro-theme-demo-tc'),
+          color_links: reactive(ColorLinks),
+          new_color_link: { ...ColorLinks[0] },
+          scheme_files: reactive([]),
+          scheme_file_selected: reactive('test-scheme.micro'),
+
+          //test_color: '#194d33',
+        }
+      },
+
+
+      /* watch: {
+        color_links: {
+          handler(newVal, oldVal) {
+            jscolor.install()
+          },
+          deep: true,
+          immediate: true,
+        }
+      }, */
+
+
+      methods: {
+
+        addNewScheme() {
+          for (let key in this.new_color_link) {
+            if (typeof this.new_color_link[key] == 'string') {
+              this.new_color_link[key] = String(this.new_color_link[key]).trim()
+
+              //console.log(this.new_color_link[key])
+            }
+          }
+
+          let is_exists_index = this.color_links.findIndex((scheme) => scheme.link_name == this.new_color_link.link_name)
+          if (is_exists_index >= 0) {
+            // update existing
+            this.color_links[is_exists_index] = { ...this.new_color_link }
+          } else {
+            // adding new
+            this.color_links.push({ ...this.new_color_link })
+          }
+          //jscolor.install()
+        },
+        parseAndImportScheme() {
+          let importSchemeEl = document.getElementById('importScheme');
+
+          schemeArray = parse_scheme(importSchemeEl.value)
+          //console.log(schemeArray)
+          this.color_links = [...schemeArray]
+        },
+        copySchemeText() {
+          el = document.getElementById('schemeResult')
+          navigator.clipboard.writeText(el.innerText)
+          console.log('Copied scheme text');
+        },
+        getTestText(index) {
+          const c = this.color_links[index]
+          return `Testing text '${c.link_name}'. Font-color: ${c.font_color}. Background: ${c.bg_color}`
+        },
+        deleteScheme(index) {
+          console.log({'deleteScheme - index': index})
+          delete this.color_links[index]
+        },
+        fetchSchemesFile() {
+          fetch('scheme_files.json')
+            .then(data => data.json())
+            .then(data => {
+              //console.log(data)
+              this.scheme_files = data
+            })
+        },
+        fetchScheme(schemeName) {
+          //console.log('fetchScheme')
+          fetch('/colorschemes/' + schemeName)
+            .then(data => data.text())
+            .then(data => {
+              this.scheme_name = schemeName.replace('.micro', '')
+              let importSchemeEl = document.getElementById('importScheme');
+              importSchemeEl.innerHTML = data;
+
+              this.parseAndImportScheme()
+            });
+        },
+      },
+
+      computed: {
+
+        /* schemeCounts: function () {
+          return this.color_links.length
+        } */
+      },
+
+
+      mounted() {
+        console.log('mounted');
+        this.fetchSchemesFile();
+        /* fetch('/test-scheme.micro')
+          .then(data => {
+            data = data.text()
+            let importSchemeEl = document.getElementById('importScheme');
+            importSchemeEl.innerHTML = data;
+            this.parseAndImportScheme();
+          }); */
+      }, 
+
+      updated() {
+        console.log('updated')
+        jscolor.install()
+      },
+
+    }
+
+    const ColorLinksApp = createApp(ColorLinksAppSettings).mount('#vue_app')
+  </script>
+
+
+</body>
+
+</html>
