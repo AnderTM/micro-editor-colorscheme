@@ -37,8 +37,9 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
           # Upload entire repository
-          path: '.'
-          publish_dir: ./public
+          path: './public'
+          #path: '.'
+          #publish_dir: ./public
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
