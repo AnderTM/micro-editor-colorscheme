@@ -162,7 +162,7 @@
             
             <div class="form-group row">
               <div class="col-md-6">
-                <select name="scheme_files" class="form-control form-control-sm" v-model="scheme_file_selected" v-on:change="fetchScheme(scheme_file_selected)">
+                <select name="scheme_files" class="form-select form-control-sm" v-model="scheme_file_selected" v-on:change="fetchScheme(scheme_file_selected)">
                   <option v-for="sf in scheme_files" v-on:change="fetchScheme(sf)">{{sf}}</option>
                 </select>
               </div>
